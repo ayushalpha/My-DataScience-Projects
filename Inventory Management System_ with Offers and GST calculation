@@ -1,0 +1,155 @@
+# Importing Libraries
+import time
+import json
+
+sale = ''
+
+# Loading the Inventory Records from JSON to String
+fd = open('Records.json','r')
+js = fd.read()
+fd.close()
+
+# Converting String records to JSON/Dictionaries
+record = json.loads(js)
+
+# Displaying Menu
+print('-----------------MENU------------------\n')
+
+for key in record.keys():
+    print(key,":", record[key]['Name'],"|", record[key]['Price'],"|", record[key]['Qn'])
+    
+print('---------------------------------------')
+
+# Taking user Inputs about the Purchase and User Details
+ui_name = input("Enter your name: ")
+ui_mail = input("Enter your mail id: ")
+ui_ph = input("Enter your phone no: ")
+ui_pr = str(input("Enter Product ID : "))
+ui_qn = int(input("Enter Quantity   : "))
+
+# If we having equal or more Quantity than user wants
+if (record[ui_pr]['Qn'] >= ui_qn):
+    
+    # Displaying Purchase Details
+    print('---------------------------------------')
+    print('              Bill                   \n')
+    print("Name           : ",record[ui_pr]['Name'])
+    print("Price          : ",record[ui_pr]['Price'],"Rs")
+    print("Quantity       : ",ui_qn)
+    
+    print('---------------------------------------')
+    
+    Amount = record[ui_pr]['Price'] * ui_qn
+    
+    # Providing discounts if Purchase >= 5000 = 10% or if purchase >= 7000 = 15%
+    Amt= 0
+    
+    if(Amount >=5000 and Amount<7000):
+        amt10 = Amount -(Amount*0.10)
+        print("Congratulations for 10% discount: "+str(amt10)+"Rs" )
+        
+        Amt +=amt10
+        
+    elif(Amount >= 7000):
+        amt15 = Amount -(Amount*0.15)
+        print("Congratulations for 15% discount: "+str(amt15)+"Rs" )
+        
+        Amt +=amt15
+        
+    else:
+        print("Amount :",Amount,"Rs")
+        
+        Amt += Amount
+    
+    # Adding GST to the Sales item
+    print("S GST 9% ",)
+    print("C GST 9% ",)
+    print("Total Billing Amount : "+ str(Amt+(Amt*0.18)))
+    
+    print('---------------------------------------')
+    
+    
+    # Updating records in Dictionary
+    record[ui_pr]['Qn'] = record[ui_pr]['Qn'] - ui_qn
+    
+    # Generating sales structure
+    sale = time.ctime()+","+ui_name+","+ui_mail+","+ui_ph+","+ui_pr+","+record[ui_pr]['Name']+","+str(ui_qn)+","+str(Amt+(Amt*0.18))+'\n'
+
+#If we are not having enough Quantity than user wants
+else:
+    
+    # Displaying Info about the Quantity
+    print("Sorry, We're not having enough Quantity in our Inventory.")
+    print("We're only having",record[ui_pr]['Qn'],'quantity.')  
+    print('---------------------------------------')
+     
+    # If User wants to Purchase whole Quantity for that Product
+    ch = str(input("Press Y/y to purchase: "))
+    
+    if(ch == "Y" or ch == "y"):
+        
+        # Displaying Purchase details
+        print("---------------------------------------")  
+        print('              Bill                   \n')
+        print("Name           : ",record[ui_pr]['Name'])
+        print("Price          : ",record[ui_pr]['Price'],"Rs")
+        print("Quantity       : ",record[ui_pr]['Qn'])
+
+        print('---------------------------------------')
+        
+        Amount = record[ui_pr]['Price'] * record[ui_pr]['Qn']
+        
+        # Providing discounts if Purchase >= 5000 = 10% or if purchase >= 7000 = 15%
+        Amt= 0
+    
+        if(Amount >=5000 and Amount<7000):
+            amt10 = Amount -(Amount*0.10)
+            print("Congratulations for 10% discount: "+str(amt10)+" Rs." )
+
+            Amt +=amt10
+
+        elif(Amount >= 7000):
+            amt15 = Amount -(Amount*0.15)
+            print("Congratulations for 15% discount: "+str(amt15)+" Rs." )
+
+            Amt +=amt15
+
+        else:
+            print("Amount :",Amount," Rs.")
+
+            Amt += Amount
+        
+        # Adding GST to the Sales item
+        print("S GST 9% ",)
+        print("C GST 9% ",)
+    
+        print('---------------------------------------')          
+        print("Total Billing Amount :"+str(Amt+(Amt*0.18))+" Rs.")
+        print('---------------------------------------')
+        
+        # Generating Sales Structure
+        sale = time.ctime()+","+ui_name+","+ui_mail+","+ui_ph+","+ui_pr+","+record[ui_pr]['Name']+","+str(record[ui_pr]['Qn'])+","+str(Amt+(Amt*0.18))+" Rs."+'\n'
+        
+        # Updating record Dictionary
+        record[ui_pr]['Qn'] = 0
+    
+    # If user pressed anytghing other than Y/y
+    else:
+          print("Thanks!")
+
+# Converting Dictionary to String
+js = json.dumps(record)
+
+# Saving records in Json file
+fd = open("Records.json","w")
+fd.write(js)
+fd.close()
+
+# Saving records in sales file
+fs = open("sales.txt",'a')
+fs.write(sale)
+fs.close()
+
+print("-----------------------------------------")
+print("Thanks for your order, Inventory Updated!")
+print("-----------------------------------------")
